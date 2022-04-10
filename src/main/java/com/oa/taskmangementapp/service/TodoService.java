@@ -6,41 +6,40 @@ import com.oa.taskmangementapp.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
 public class TodoService implements ITodoService {
     @Autowired
     private TodoRepository todoRepository;
-
-    private List<Todo> todosList= new ArrayList<>(Arrays.asList());
+    @Autowired
+    EntityManager entityManager;
 
     @Override
-    public boolean saveTodo(Todo todo) {
-        //todoRepository.saveTodo(todo);
-        return todosList.add(todo);
+    @Transactional
+    public void addTodo(String description) {
+        Todo todo = new Todo();
+        todo.setDescription(description);
+        entityManager.persist(todo);
     }
 
-    @Override
-    public List<Todo> showAllTodos(){
-        return todosList;
-    }
-
-    @Override
-    public Todo updateTodo(int id, String description) {
-        for (Todo todo:todosList) {
-            if(todo.getId() == id){
-                todo.setDescription(description);
-            }
-        }
-        return null;
+   @Override
+    public void updateTodo(int id, String description) {
+        todoRepository.updateTodo(id, description);
     }
 
     @Override
     public void deleteTodo(int id){
-        todosList.removeIf(todo -> todo.getId() == id);
+        todoRepository.deleteTodo(id);
+    }
+
+    @Override
+    public List<Todo> getAllTodos(){
+       List todos = todoRepository.getAllTodos();
+       return todos;
     }
 }

@@ -3,10 +3,12 @@ package com.oa.taskmangementapp.service;
 import com.oa.taskmangementapp.model.Todo;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ITodoService {
-    boolean saveTodo(Todo todo);
+
+    void addTodo(String description);
+    void updateTodo(int id, String description);
     void deleteTodo(int id);
-    public List<Todo> showAllTodos ();
-    public  Todo updateTodo(int id, String description);
+    public List<Todo> getAllTodos();
 }
