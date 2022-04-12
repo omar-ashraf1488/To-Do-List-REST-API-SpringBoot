@@ -1,9 +1,13 @@
 package com.oa.taskmangementapp.repository;
 
-import com.oa.taskmangementapp.model.User;
+import com.oa.taskmangementapp.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+@Repository
+@Component
+public interface UserRepository extends JpaRepository<AppUser, String> {
 
-public interface UserRepository extends JpaRepository<User , String> {
+    AppUser findByEmail(String email);
 }
