@@ -1,13 +1,11 @@
 package com.oa.taskmangementapp.service;
 
-import com.oa.taskmangementapp.model.Todo;
+import com.oa.taskmangementapp.entity.Todo;
 
 import com.oa.taskmangementapp.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,31 +13,43 @@ import java.util.Optional;
 @Service
 public class TodoService implements ITodoService {
     @Autowired
-    private TodoRepository todoRepository;
-    @Autowired
-    EntityManager entityManager;
+    TodoRepository todoRepository;
 
     @Override
-    @Transactional
-    public void addTodo(String description) {
-        Todo todo = new Todo();
-        todo.setDescription(description);
-        entityManager.persist(todo);
+    public void addTodo(Todo todo){
+        todoRepository.save(todo);
     }
 
-   @Override
+    /*@Override
     public void updateTodo(int id, String description) {
-        todoRepository.updateTodo(id, description);
+        todoRepository.findById(Todo.getId());
+        todoRepository.save(Todo);
+    }*/
+
+    @Override
+    public boolean existsById(int id) {
+        return todoRepository.existsById(id);
     }
 
     @Override
-    public void deleteTodo(int id){
-        todoRepository.deleteTodo(id);
+    public Optional<Todo> findTodoById(int id) {
+        return todoRepository.findById(id);
+    }
+
+
+    @Override
+    public List<Todo> findAll() {
+        return todoRepository.findAll();
     }
 
     @Override
-    public List<Todo> getAllTodos(){
-       List todos = todoRepository.getAllTodos();
-       return todos;
+    public void deleteTodo(int id) {
+        todoRepository.deleteById(id);
     }
+
+    @Override
+    public List<Todo> getTodosForUser(String id) {
+        return todoRepository.findAllByUserId(id);
+    }
+
 }

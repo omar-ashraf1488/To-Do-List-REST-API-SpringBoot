@@ -1,6 +1,6 @@
 package com.oa.taskmangementapp.service;
 
-import com.oa.taskmangementapp.model.User;
+import com.oa.taskmangementapp.entity.AppUser;
 import com.oa.taskmangementapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,9 +15,14 @@ public class UserService implements IUserService {
     UserRepository userRepository;
 
     @Override
-    public void updateUser(User user) {
-       userRepository.findById(user.getId());
-       userRepository.save(user);
+    public void addUser(AppUser appUser){
+        userRepository.save(appUser);
+    }
+
+    @Override
+    public void updateUser(AppUser appUser) {
+       userRepository.findById(appUser.getId());
+       userRepository.save(appUser);
     }
 
     @Override
@@ -26,17 +31,12 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Optional<User> findById(String id) {
+    public Optional<AppUser> findById(String id) {
         return userRepository.findById(id);
     }
 
     @Override
-    public void save(User currentUser) {
-        userRepository.save(currentUser);
-    }
-
-    @Override
-    public List<User> findAll() {
+    public List<AppUser> findAll() {
         return userRepository.findAll();
     }
 
@@ -44,4 +44,6 @@ public class UserService implements IUserService {
     public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
+
+
 }

@@ -1,11 +1,12 @@
 package com.oa.taskmangementapp.controller;
 
-import com.oa.taskmangementapp.model.User;
+import com.oa.taskmangementapp.entity.AppUser;
 import com.oa.taskmangementapp.service.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,46 +20,54 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    BCryptPasswordEncoder passwordencoder;
+
     @PostMapping(value = "/add-user")
-    public ResponseEntity<ApiResponse> addUser(@RequestBody User user) {
+    public ResponseEntity<ApiResponse> addUser(@RequestBody AppUser appUser) {
+
         try {
-            userService.save(user);
+            appUser.setPassword(passwordencoder.encode(appUser.getPassword()));
+            userService.addUser(appUser);
             return new ResponseEntity(new ApiResponse(true, "User registered successfully"), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity(new ApiResponse(false, "Something went wrong"), HttpStatus.EXPECTATION_FAILED);
         }
     }
 
-    @PutMapping(value = "/update-user/")
-    public ResponseEntity<ApiResponse> updateTodo(@RequestParam String id,
-                                                  @RequestBody User user){
+    @PutMapping(value = "/update-user/{id}")
+    public ResponseEntity<ApiResponse> updateTodo(@PathVariable(value = "id") String id,
+                                                  @RequestBody AppUser appUser){
         if (!userService.existsById(id)) {
             return new ResponseEntity<>(new ApiResponse(false, "User not found"),
                     HttpStatus.NOT_FOUND);
         }
 
-        Optional<User> optionalUser = userService.findById(id);
-        User currentUser = optionalUser.get();
+        Optional<AppUser> optionalUser = userService.findById(id);
+        AppUser currentAppUser = optionalUser.get();
 
-        if (user.getEmail() != null && !user.getEmail().equals(currentUser.getEmail())) {
-            currentUser.setEmail(user.getEmail());
+        if (appUser.getEmail() != null && !appUser.getEmail().equals(currentAppUser.getEmail())) {
+            currentAppUser.setEmail(appUser.getEmail());
+        }
+        if (appUser.getPassword() != null && !appUser.getPassword().equals(currentAppUser.getPassword())) {
+            currentAppUser.setPassword(appUser.getPassword());
         }
 
-        if (user.getFirstName() != null && !user.getFirstName().equals(currentUser.getFirstName())) {
-            currentUser.setFirstName(user.getFirstName());
+        if (appUser.getFirstName() != null && !appUser.getFirstName().equals(currentAppUser.getFirstName())) {
+            currentAppUser.setFirstName(appUser.getFirstName());
         }
 
-        if (user.getLastName() != null && !user.getLastName().equals(currentUser.getLastName())) {
-            currentUser.setLastName(user.getLastName());
+        if (appUser.getLastName() != null && !appUser.getLastName().equals(currentAppUser.getLastName())) {
+            currentAppUser.setLastName(appUser.getLastName());
         }
-        userService.save(currentUser);
+        userService.updateUser(currentAppUser);
 
         return new ResponseEntity <> (new ApiResponse(true, "User updated"),
                 HttpStatus.OK);
     }
 
     @GetMapping(value = "/all-users")
-    public ResponseEntity<List<User>> listOfUser() {
+    public ResponseEntity<List<AppUser>> listOfUser() {
         try {
             return ResponseEntity.ok(userService.findAll());
         } catch (Exception e) {
@@ -66,8 +75,8 @@ public class UserController {
         }
     }
 
-   @DeleteMapping(value = "/delete-user")
-    public ResponseEntity<ApiResponse> deleteTodo(@RequestParam String id) {
+   @DeleteMapping(value = "/delete-user/{id}")
+    public ResponseEntity<ApiResponse> deleteTodo(@PathVariable(value = "id")String id) {
        try {
            userService.deleteUser(id);
            return new ResponseEntity<ApiResponse>(new ApiResponse(true, "User deleted successfully"),
